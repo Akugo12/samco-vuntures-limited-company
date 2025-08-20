@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Your Cart | Samco Ventures</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f5f5f5;
+    }
+    header, footer {
+      background: #2c3e50;
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+    }
+    .container {
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      background: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+    }
+    form input, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    button {
+      background: #2c3e50;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Your Cart</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="shop.html">Shop</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div id="cart-items"></div>
+    <div id="total" style="margin-top: 10px; font-weight: bold;"></div>
+
+    <form onsubmit="sendOrderToWhatsApp(event)">
+      <h3>Checkout via WhatsApp</h3>
+      <input type="text" id="name" placeholder="Your Name" required />
+      <input type="text" id="phone" placeholder="Phone Number" required />
+      <textarea id="address" placeholder="Delivery Address" required></textarea>
+      <button type="submit">Place Order</button>
+    </form>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 Samco Ventures</p>
+  </footer>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    function renderCart() {
+      const cartItems = document.getElementById("cart-items");
+      const totalDiv = document.getElementById("total");
+      cartItems.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, i) => {
+        total += item.price;
+        cartItems.innerHTML += `
+          <div class="cart-item">
+            ${item.name} - KES ${item.price}
+            <button onclick="removeItem(${i})">X</button>
+          </div>
+        `;
+      });
+      totalDiv.innerText = `Total: KES ${total.toLocaleString()}`;
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+    }
+
+    function sendOrderToWhatsApp(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const phone = document.getElementById("phone").value;
+      const address = document.getElementById("address").value;
+
+      if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+      }
+
+      let msg = `🛍 New Order from ${name}\n📞 ${phone}\n🏠 ${address}\n\n`;
+      let total = 0;
+      cart.forEach((item, i) => {
+        msg += `${i + 1}. ${item.name} - KES ${item.price}\n`;
+        total += item.price;
+      });
+      msg += `\n💵 Total: KES ${total}\nConfirm availability.`;
+
+      window.open(`https://wa.me/254796431147?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+
+    renderCart();
+  </script>
+</body>
+</html>
